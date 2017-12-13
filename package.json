@@ -1,0 +1,23 @@
+{
+  "name": "coinbase-excel-functions",
+  "version": "1.0.0",
+  "description": "Learn how to use custom functions in Excel (similar to user-defined functions, or UDFs). Custom functions are JavaScript functions that you can add to Excel, and then use them like any native Excel function (for example =Sum). This sample accompanies the [Custom Functions Overview](https://dev.office.com/docs/add-ins/excel/custom-functions-overview) topic.",
+  "main": "wwwroot\\customfunctions.js",
+  "scripts": {
+    "tsc": "tsc -p tsconfig.json -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/astegmaier/coinbase-excel-functions.git"
+  },
+  "author": "Andrew Stegmaier",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/astegmaier/coinbase-excel-functions/issues"
+  },
+  "homepage": "https://github.com/astegmaier/coinbase-excel-functions#readme",
+  "devDependencies": {
+    "typescript": "^2.6.2"
+  },
+  "dependencies": {}
+}

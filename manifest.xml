@@ -11,7 +11,7 @@
     <Host Name="Workbook" />
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://<INSERT-URL-HERE>/customfunctions.html"/>
+    <SourceLocation DefaultValue="https://excel-coinbase-prices.azurewebsites.net/customfunctions.html"/>
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
@@ -31,8 +31,8 @@
     </Hosts>
     <Resources>
       <bt:Urls>
-      	<bt:Url id="functionsjs" DefaultValue="https://<INSERT-URL-HERE>/customfunctions.js" />
-      	<bt:Url id="functionshtml" DefaultValue="https://<INSERT-URL-HERE>/customfunctions.html" />
+      	<bt:Url id="functionsjs" DefaultValue="https://excel-coinbase-prices.azurewebsites.net/customfunctions.js" />
+      	<bt:Url id="functionshtml" DefaultValue="https://excel-coinbase-prices.azurewebsites.net/customfunctions.html" />
       </bt:Urls>
     </Resources>
   </VersionOverrides>

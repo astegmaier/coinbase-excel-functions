@@ -1,21 +1,18 @@
-/*
+/* 
  * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
  * See LICENSE in the project root for license information.
  */
-var Excel;
-(function (Excel) {
-    var Script = /** @class */ (function () {
-        function Script() {
-        }
-        return Script;
-    }());
-})(Excel || (Excel = {}));
-Office.initialize = function (reason) {
+namespace Excel {
+    class Script {}
+}
+
+Office.initialize = function(reason){
     // Define the Contoso prefix.
     Excel.Script.CustomFunctions = {};
     Excel.Script.CustomFunctions["CONTOSO"] = {};
+
     // add42 is an example of a synchronous function.
-    function add42(a, b) {
+    function add42 (a: number, b: number) {
         return a + b + 42;
     }
     Excel.Script.CustomFunctions["CONTOSO"]["ADD42"] = {
@@ -40,12 +37,13 @@ Office.initialize = function (reason) {
                 valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             }
         ],
-        options: { batch: false, stream: false }
+        options:{ batch: false, stream: false }
     };
+    
     // getTemperature is an example of an asynchronous function.
-    function getTemperature(thermometerID) {
-        return new OfficeExtension.Promise(function (setResult, setError) {
-            sendWebRequestExample(thermometerID, function (data) {
+    function getTemperature(thermometerID: string){
+        return new OfficeExtension.Promise(function(setResult, setError){
+            sendWebRequestExample(thermometerID, function(data){
                 setResult(data.temperature);
             });
         });
@@ -66,12 +64,13 @@ Office.initialize = function (reason) {
                 valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             },
         ],
-        options: { batch: false, stream: false }
+        options: { batch: false,  stream: false }
     };
+
     // incrementValue is an example of a streaming function.
-    function incrementValue(increment, setResult) {
-        var result = 0;
-        setInterval(function () {
+    function incrementValue(increment, setResult){    
+    	var result = 0;
+        setInterval(function(){
             result += increment;
             setResult(result);
         }, 1000);
@@ -92,23 +91,24 @@ Office.initialize = function (reason) {
                 valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             },
         ],
-        options: { batch: false, stream: true }
+        options: { batch: false,  stream: true }
     };
+    
     // The refreshTemperature and streamTemperature functions use global variables to save & read state, while streaming data.
     var savedTemperatures = {};
-    function refreshTemperature(thermometerID) {
-        sendWebRequestExample(thermometerID, function (data) {
+    function refreshTemperature(thermometerID){        
+        sendWebRequestExample(thermometerID, function(data){
             savedTemperatures[thermometerID] = data.temperature;
         });
-        setTimeout(function () {
+        setTimeout(function(){
             refreshTemperature(thermometerID);
         }, 1000);
     }
-    function streamTemperature(thermometerID, setResult) {
-        if (!savedTemperatures[thermometerID]) {
+    function streamTemperature(thermometerID, setResult){    
+        if(!savedTemperatures[thermometerID]){
             refreshTemperature(thermometerID);
         }
-        function getNextTemperature() {
+        function getNextTemperature(){
             setResult(savedTemperatures[thermometerID]);
             setTimeout(getNextTemperature, 1000);
         }
@@ -130,24 +130,26 @@ Office.initialize = function (reason) {
                 valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             },
         ],
-        options: { batch: false, stream: true }
+        options: { batch: false,  stream: true }
     };
+
     // secondHighestTemp is a function that accepts and uses a range of data. The range is sent to the function as a parameter.
-    function secondHighestTemp(temperatures) {
+    function secondHighestTemp(temperatures){ 
         var highest = -273, secondHighest = -273;
-        for (var i = 0; i < temperatures.length; i++) {
-            for (var j = 0; j < temperatures[i].length; j++) {
-                if (temperatures[i][j] >= highest) {
+        for(var i = 0; i < temperatures.length;i++){
+            for(var j = 0; j < temperatures[i].length;j++){
+                if(temperatures[i][j] >= highest){
                     secondHighest = highest;
                     highest = temperatures[i][j];
                 }
-                else if (temperatures[i][j] >= secondHighest) {
+                else if(temperatures[i][j] >= secondHighest){
                     secondHighest = temperatures[i][j];
                 }
             }
         }
         return secondHighest;
     }
+
     Excel.Script.CustomFunctions["CONTOSO"]["SECONDHIGHESTTEMP"] = {
         call: secondHighestTemp,
         description: "Returns the second highest tempature in the supplied range of temperatures.",
@@ -166,30 +168,34 @@ Office.initialize = function (reason) {
         ],
         options: { batch: false, stream: false }
     };
+
     // Register all the custom functions previously defined in Excel.
-    Excel.run(function (context) {
+    Excel.run(function (context) {        
         context.workbook.customFunctions.addAll();
-        return context.sync().then(function () { });
-    }).catch(function (error) { });
+        return context.sync().then(function(){});
+    }).catch(function(error){});
+
     // The following are helper functions.
+
     // sendWebRequestExample is intended to simulate a web request to read a temperature. The code in this function does not actually make a web request. 
-    function sendWebRequestExample(input, callback) {
+    function sendWebRequestExample(input, callback: (data: any) => void){
         var result = {};
         // Generate a temperature.
         result["temperature"] = 42 - (Math.random() * 10);
-        setTimeout(function () {
+        setTimeout(function(){
             callback(result);
         }, 250);
     }
+
     // The log function lets you write debugging messages into Excel (first evaluate the MY.DEBUG function in Excel). You can also debug with regular debugging tools like Visual Studio.
     var debug = [];
-    var debugUpdate = function (data) { };
-    function log(myText) {
+    var debugUpdate = function(data){};
+    function log(myText){
         debug.push([myText]);
         debugUpdate(debug);
     }
-    function myDebug(setResult) {
+    function myDebug(setResult){
         debugUpdate = setResult;
     }
-};
-//# sourceMappingURL=customfunctions.js.map
+   
+}; 
