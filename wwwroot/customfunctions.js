@@ -180,11 +180,11 @@ Office.initialize = function (reason) {
     //     ],
     //     options: { batch: false, stream: false }
     // };
-    // // Register all the custom functions previously defined in Excel.
-    // Excel.run(function (context) {        
-    //     context.workbook.customFunctions.addAll();
-    //     return context.sync().then(function(){});
-    // }).catch(function(error){});
+    // Register all the custom functions previously defined in Excel.
+    Excel.run(function (context) {
+        context.workbook.customFunctions.addAll();
+        return context.sync().then(function () { });
+    }).catch(function (error) { });
     // // The following are helper functions.
     // // sendWebRequestExample is intended to simulate a web request to read a temperature. The code in this function does not actually make a web request. 
     // function sendWebRequestExample(input: any, callback: (data: any) => void){

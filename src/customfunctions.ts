@@ -188,11 +188,11 @@ Office.initialize = function(reason){
     //     options: { batch: false, stream: false }
     // };
 
-    // // Register all the custom functions previously defined in Excel.
-    // Excel.run(function (context) {        
-    //     context.workbook.customFunctions.addAll();
-    //     return context.sync().then(function(){});
-    // }).catch(function(error){});
+    // Register all the custom functions previously defined in Excel.
+    Excel.run(function (context: Excel.RequestContext) {        
+        context.workbook.customFunctions.addAll();
+        return context.sync().then(function(){});
+    }).catch(function(error){});
 
     // // The following are helper functions.
 
