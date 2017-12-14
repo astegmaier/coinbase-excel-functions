@@ -101,7 +101,7 @@ function convertCurrencyOld(from, to) {
                     rawResponse = _a.sent();
                     parsedResponse = JSON.parse(rawResponse);
                     console.log(parsedResponse);
-                    return [2 /*return*/, parsedResponse.data.currency];
+                    return [2 /*return*/, parseFloat(parsedResponse.data.amount)];
                 case 4:
                     e_1 = _a.sent();
                     console.error('Couldnt convert the currencies. Error was: ' + e_1);
@@ -133,7 +133,7 @@ function convertCurrency(from, to) {
                     rawResponse = _a.sent();
                     parsedResponse = JSON.parse(rawResponse);
                     console.log(parsedResponse);
-                    setResult(parsedResponse.data.currency);
+                    setResult(parseFloat(parsedResponse.data.amount));
                     return [3 /*break*/, 5];
                 case 4:
                     e_2 = _a.sent();
@@ -155,7 +155,7 @@ Office.initialize = function (reason) {
     Excel.Script.CustomFunctions = {};
     Excel.Script.CustomFunctions["COINBASE"] = {};
     Excel.Script.CustomFunctions["COINBASE"]["PRICE"] = {
-        call: convertCurrency,
+        call: getPrice,
         description: "Gets the current bitcoin price from Coinbase",
         result: {
             resultType: Excel.CustomFunctionValueType.number,
@@ -178,26 +178,11 @@ Office.initialize = function (reason) {
         options: { batch: false, stream: false }
     };
     function getPrice(base, currency) {
-        var _this = this;
-        return new OfficeExtension.Promise(function (setResult, setError) { return __awaiter(_this, void 0, void 0, function () {
-            var result, e_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, convertCurrency(base, currency)];
-                    case 1:
-                        result = _a.sent();
-                        setResult(result);
-                        return [3 /*break*/, 3];
-                    case 2:
-                        e_3 = _a.sent();
-                        setError(e_3);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        }); });
+        return new OfficeExtension.Promise(function (setResult, setError) {
+            convertCurrencyOld(base, currency)
+                .then(function (result) { return setResult(result); })
+                .catch(function (error) { return setError(error); });
+        });
     }
     Excel.run(function (context) {
         context.workbook.customFunctions.addAll();

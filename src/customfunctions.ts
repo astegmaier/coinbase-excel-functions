@@ -67,7 +67,7 @@ async function convertCurrencyOld(from: string, to: string) {
             let rawResponse = await request(`https://api.coinbase.com/v2/prices/${from}-${to}/spot`);
             let parsedResponse: {data: ConversionResult} = JSON.parse(rawResponse);
             console.log(parsedResponse);
-            return parsedResponse.data.currency;
+            return parseFloat(parsedResponse.data.amount);
         } catch (e) {
             console.error('Couldnt convert the currencies. Error was: ' + e);
         }
@@ -84,7 +84,7 @@ function convertCurrency(from: string, to: string) {
                 let rawResponse = await request(`https://api.coinbase.com/v2/prices/${from}-${to}/spot`);
                 let parsedResponse: {data: ConversionResult} = JSON.parse(rawResponse);
                 console.log(parsedResponse);
-                setResult(parsedResponse.data.currency);
+                setResult(parseFloat(parsedResponse.data.amount));
             } catch (e) {
                 console.error('Couldnt convert the currencies. Error was: ' + e);
                 setError('Couldnt convert the currencies!');
@@ -102,7 +102,7 @@ Office.initialize = function(reason){
     Excel.Script.CustomFunctions["COINBASE"] = {};
 
     Excel.Script.CustomFunctions["COINBASE"]["PRICE"] = {
-        call: convertCurrency,
+        call: getPrice,
         description: "Gets the current bitcoin price from Coinbase",
         result: {
             resultType: Excel.CustomFunctionValueType.number,
@@ -126,13 +126,10 @@ Office.initialize = function(reason){
     };
 
 function getPrice(base: string, currency: string) {
-    return new OfficeExtension.Promise(async (setResult, setError) => {
-        try {
-            let result = await convertCurrency(base, currency);
-            setResult(result);
-        } catch (e) {
-            setError(e);
-        }
+    return new OfficeExtension.Promise((setResult, setError) => {
+        convertCurrencyOld(base, currency)
+            .then(result => setResult(result))
+            .catch(error => setError(error));
     });
 }
 
