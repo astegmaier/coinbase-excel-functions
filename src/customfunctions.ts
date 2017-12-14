@@ -60,7 +60,7 @@ async function getSupportedCurrencies(): Promise<CurrencyList> {
     }
 }
 
-async function convertCurrency(from: string, to: string) {
+async function convertCurrencyOld(from: string, to: string) {
     let supportedCurrencies = await getSupportedCurrencies();
     if (from in supportedCurrencies && to in supportedCurrencies) {
         try {
@@ -76,13 +76,33 @@ async function convertCurrency(from: string, to: string) {
     }
 }
 
+function convertCurrency(from: string, to: string) {
+    return new OfficeExtension.Promise(async (setResult, setError) => {
+        let supportedCurrencies = await getSupportedCurrencies();
+        if (from in supportedCurrencies && to in supportedCurrencies) {
+            try {
+                let rawResponse = await request(`https://api.coinbase.com/v2/prices/${from}-${to}/spot`);
+                let parsedResponse: {data: ConversionResult} = JSON.parse(rawResponse);
+                console.log(parsedResponse);
+                setResult(parsedResponse.data.currency);
+            } catch (e) {
+                console.error('Couldnt convert the currencies. Error was: ' + e);
+                setError('Couldnt convert the currencies!');
+            }
+        } else {
+            console.error('Currency not supported!');
+            setError('Currency not supported!');
+        }
+    });
+}
+
 Office.initialize = function(reason){
     // Define the Contoso prefix.
     Excel.Script.CustomFunctions = {};
     Excel.Script.CustomFunctions["COINBASE"] = {};
 
     Excel.Script.CustomFunctions["COINBASE"]["PRICE"] = {
-        call: getPrice,
+        call: convertCurrency,
         description: "Gets the current bitcoin price from Coinbase",
         result: {
             resultType: Excel.CustomFunctionValueType.number,
@@ -92,19 +112,19 @@ Office.initialize = function(reason){
             {
                 name: "Base",
                 description: "The code of the currency whose price you want to check. (default: BTC)",
-                valueType: Excel.CustomFunctionValueType.number,
-                valueDimensionality: Excel.CustomFunctionDimensionality.scalar
+                valueType: Excel.CustomFunctionValueType.string,
+                valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             },
             {
                 name: "Currency",
                 description: "The code of the currency in which you want to display the price. (default: USD)",
-                valueType: Excel.CustomFunctionValueType.number,
-                valueDimensionality: Excel.CustomFunctionDimensionality.scalar
+                valueType: Excel.CustomFunctionValueType.string,
+                valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             }
         ],
         options: {batch: false, stream: false}
     };
-    
+
 function getPrice(base: string, currency: string) {
     return new OfficeExtension.Promise(async (setResult, setError) => {
         try {

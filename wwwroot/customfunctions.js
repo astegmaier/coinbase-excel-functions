@@ -84,7 +84,7 @@ function getSupportedCurrencies() {
         });
     });
 }
-function convertCurrency(from, to) {
+function convertCurrencyOld(from, to) {
     return __awaiter(this, void 0, void 0, function () {
         var supportedCurrencies, rawResponse, parsedResponse, e_1;
         return __generator(this, function (_a) {
@@ -115,12 +115,47 @@ function convertCurrency(from, to) {
         });
     });
 }
+function convertCurrency(from, to) {
+    var _this = this;
+    return new OfficeExtension.Promise(function (setResult, setError) { return __awaiter(_this, void 0, void 0, function () {
+        var supportedCurrencies, rawResponse, parsedResponse, e_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, getSupportedCurrencies()];
+                case 1:
+                    supportedCurrencies = _a.sent();
+                    if (!(from in supportedCurrencies && to in supportedCurrencies)) return [3 /*break*/, 6];
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, , 5]);
+                    return [4 /*yield*/, request("https://api.coinbase.com/v2/prices/" + from + "-" + to + "/spot")];
+                case 3:
+                    rawResponse = _a.sent();
+                    parsedResponse = JSON.parse(rawResponse);
+                    console.log(parsedResponse);
+                    setResult(parsedResponse.data.currency);
+                    return [3 /*break*/, 5];
+                case 4:
+                    e_2 = _a.sent();
+                    console.error('Couldnt convert the currencies. Error was: ' + e_2);
+                    setError('Couldnt convert the currencies!');
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    console.error('Currency not supported!');
+                    setError('Currency not supported!');
+                    _a.label = 7;
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+}
 Office.initialize = function (reason) {
     // Define the Contoso prefix.
     Excel.Script.CustomFunctions = {};
     Excel.Script.CustomFunctions["COINBASE"] = {};
     Excel.Script.CustomFunctions["COINBASE"]["PRICE"] = {
-        call: getPrice,
+        call: convertCurrency,
         description: "Gets the current bitcoin price from Coinbase",
         result: {
             resultType: Excel.CustomFunctionValueType.number,
@@ -130,14 +165,14 @@ Office.initialize = function (reason) {
             {
                 name: "Base",
                 description: "The code of the currency whose price you want to check. (default: BTC)",
-                valueType: Excel.CustomFunctionValueType.number,
-                valueDimensionality: Excel.CustomFunctionDimensionality.scalar
+                valueType: Excel.CustomFunctionValueType.string,
+                valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             },
             {
                 name: "Currency",
                 description: "The code of the currency in which you want to display the price. (default: USD)",
-                valueType: Excel.CustomFunctionValueType.number,
-                valueDimensionality: Excel.CustomFunctionDimensionality.scalar
+                valueType: Excel.CustomFunctionValueType.string,
+                valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             }
         ],
         options: { batch: false, stream: false }
@@ -145,7 +180,7 @@ Office.initialize = function (reason) {
     function getPrice(base, currency) {
         var _this = this;
         return new OfficeExtension.Promise(function (setResult, setError) { return __awaiter(_this, void 0, void 0, function () {
-            var result, e_2;
+            var result, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -156,8 +191,8 @@ Office.initialize = function (reason) {
                         setResult(result);
                         return [3 /*break*/, 3];
                     case 2:
-                        e_2 = _a.sent();
-                        setError(e_2);
+                        e_3 = _a.sent();
+                        setError(e_3);
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
