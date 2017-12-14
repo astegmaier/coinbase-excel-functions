@@ -2,8 +2,78 @@
  * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
  * See LICENSE in the project root for license information.
  */
-namespace Excel {
-    class Script {}
+interface CurrencyCodeDetails { 
+    id: string; 
+    name: string;
+    min_size: string;
+}
+
+interface CurrencyList {
+    [id: string]: CurrencyCodeDetails
+}
+
+interface ConversionResult {
+    base: string;
+    currency: string;
+    amount: string;
+}
+
+var supportedCurrenciesCache: CurrencyList;
+
+function request(url: string): Promise<any> {
+    return new Promise(function(resolve, reject) {
+      const xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function(e) {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            resolve(xhr.response);
+          } else {
+            reject(xhr.status);
+          }
+        }
+      }
+      xhr.ontimeout = function () {
+        reject('timeout');
+      }
+      xhr.open('get', url, true);
+      xhr.setRequestHeader('CB-VERSION', '2017-08-07');
+      xhr.send();
+    })
+  }
+
+async function getSupportedCurrencies(): Promise<CurrencyList> {
+    if (supportedCurrenciesCache) {
+        return supportedCurrenciesCache;
+    } else {
+        let rawResponse = await request('https://api.coinbase.com/v2/currencies');
+        try {
+            let parsedResponse: {data: CurrencyCodeDetails[]} = JSON.parse(rawResponse);
+            supportedCurrenciesCache = {};
+            parsedResponse.data.forEach((value) => {
+                supportedCurrenciesCache[value.id] = value;
+            });
+            console.log('Got this list of supported currencies: ', supportedCurrenciesCache);
+            return supportedCurrenciesCache;
+        } catch (e) {
+            console.error('Could not get the list of supported currencies from Coinbase! Error was: ' + e);
+        }
+    }
+}
+
+async function convertCurrency(from: string, to: string) {
+    let supportedCurrencies = await getSupportedCurrencies();
+    if (from in supportedCurrencies && to in supportedCurrencies) {
+        try {
+            let rawResponse = await request(`https://api.coinbase.com/v2/prices/${from}-${to}/spot`);
+            let parsedResponse: {data: ConversionResult} = JSON.parse(rawResponse);
+            console.log(parsedResponse);
+            return parsedResponse.data.currency;
+        } catch (e) {
+            console.error('Couldnt convert the currencies. Error was: ' + e);
+        }
+    } else {
+        console.error('Currency not supported!');
+    }
 }
 
 Office.initialize = function(reason){
@@ -11,21 +81,51 @@ Office.initialize = function(reason){
     Excel.Script.CustomFunctions = {};
     Excel.Script.CustomFunctions["COINBASE"] = {};
 
-    
-    function getBTC() {
-        return 15000;
-    }
-
-    Excel.Script.CustomFunctions["COINBASE"]["BTC"] = {
-        call: getBTC,
+    Excel.Script.CustomFunctions["COINBASE"]["PRICE"] = {
+        call: getPrice,
         description: "Gets the current bitcoin price from Coinbase",
         result: {
             resultType: Excel.CustomFunctionValueType.number,
             resultDimensionality: Excel.CustomFunctionDimensionality.scalar
         },
-        parameters: [],
+        parameters: [
+            {
+                name: "Base",
+                description: "The code of the currency whose price you want to check. (default: BTC)",
+                valueType: Excel.CustomFunctionValueType.number,
+                valueDimensionality: Excel.CustomFunctionDimensionality.scalar
+            },
+            {
+                name: "Currency",
+                description: "The code of the currency in which you want to display the price. (default: USD)",
+                valueType: Excel.CustomFunctionValueType.number,
+                valueDimensionality: Excel.CustomFunctionDimensionality.scalar
+            }
+        ],
         options: {batch: false, stream: false}
     };
+    
+function getPrice(base: string, currency: string) {
+    return new OfficeExtension.Promise(async (setResult, setError) => {
+        try {
+            let result = await convertCurrency(base, currency);
+            setResult(result);
+        } catch (e) {
+            setError(e);
+        }
+    });
+}
+
+Excel.run(function (context: Excel.RequestContext) {        
+    context.workbook.customFunctions.addAll();
+    return context.sync().then(function(){});
+}).catch(function(error){});
+
+
+
+
+
+
 
     // Excel.Script.CustomFunctions["CONTOSO"] = {};
 
@@ -189,10 +289,7 @@ Office.initialize = function(reason){
     // };
 
     // Register all the custom functions previously defined in Excel.
-    Excel.run(function (context: Excel.RequestContext) {        
-        context.workbook.customFunctions.addAll();
-        return context.sync().then(function(){});
-    }).catch(function(error){});
+
 
     // // The following are helper functions.
 

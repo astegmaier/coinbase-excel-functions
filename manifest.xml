@@ -5,8 +5,8 @@
   <Version>1.0.0.0</Version>
   <ProviderName>Contoso</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Custom functions sample" />
-  <Description DefaultValue="A variety of sample custom functions." />
+  <DisplayName DefaultValue="Coinbase Prices" />
+  <Description DefaultValue="An Excel function to fetch current cryptocurrency prices from Coinbase." />
   <Hosts>
     <Host Name="Workbook" />
   </Hosts>
