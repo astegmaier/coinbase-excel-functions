@@ -61,19 +61,19 @@ async function getSupportedCurrencies(): Promise<CurrencyList> {
 }
 
 async function convertCurrencyOld(from: string, to: string) {
-    let supportedCurrencies = await getSupportedCurrencies();
-    if (from in supportedCurrencies && to in supportedCurrencies) {
-        try {
+    // let supportedCurrencies = await getSupportedCurrencies();
+    // if (from in supportedCurrencies && to in supportedCurrencies) {
+    //     try {
             let rawResponse = await request(`https://api.coinbase.com/v2/prices/${from}-${to}/spot`);
             let parsedResponse: {data: ConversionResult} = JSON.parse(rawResponse);
             console.log(parsedResponse);
             return parseFloat(parsedResponse.data.amount);
-        } catch (e) {
-            console.error('Couldnt convert the currencies. Error was: ' + e);
-        }
-    } else {
-        console.error('Currency not supported!');
-    }
+    //     } catch (e) {
+    //         console.error('Couldnt convert the currencies. Error was: ' + e);
+    //     }
+    // } else {
+    //     console.error('Currency not supported!');
+    // }
 }
 
 function convertCurrency(from: string, to: string) {
