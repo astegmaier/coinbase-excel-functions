@@ -55,13 +55,13 @@ function getPrice(base, currency) {
                     var parsedResponse = JSON.parse(rawResponse);
                     setResult(parseFloat(parsedResponse.data.amount));
                 })
-                    .catch(function () { return setResult(11111); }); //setError("Couldn't convert currencies"));
+                    .catch(function () { return setError('#VALUE'); }); //setError("Couldn't convert currencies"));
             }
             else {
-                setResult(333333); //setError("Currency not supported");
+                setError('#VALUE'); //setError("Currency not supported");
             }
         })
-            .catch(function () { return setResult(22222); }); //setError("Couldn't get list of supported currencies"));
+            .catch(function () { return setError('#VALUE'); }); //setError("Couldn't get list of supported currencies"));
     });
 }
 Office.initialize = function (reason) {
