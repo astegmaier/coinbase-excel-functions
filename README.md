@@ -1,46 +1,23 @@
-# Custom functions in Excel (Preview)
+# Coinbase Excel Functions
 
-Learn how to use custom functions in Excel (similar to user-defined functions, or UDFs). Custom functions are JavaScript functions that you can add to Excel, and then use them like any native Excel function (for example =Sum). This sample accompanies the [Custom Functions Overview](https://dev.office.com/docs/add-ins/excel/custom-functions-overview) topic.
+This is an [Excel JavaScript Custom Function](https://dev.office.com/docs/add-ins/excel/custom-functions-overview) that will pull the latest crypto currency prices from Coinbase. It was modeled after the examples on the [Excel Custom Functions Starter Repo](https://github.com/OfficeDev/Excel-Custom-Functions)
 
-## Table of Contents
-* [Change History](#change-history)
-* [Prerequisites](#prerequisites)
-* [To use the project](#to-use-the-project)
-* [Questions and comments](#questions-and-comments)
-* [Additional resources](#additional-resources)
+Note: this add-in uses a publicly accessible REST API from Coinbase, but the add-in itself is not affiliated with Coinbase in any way. The author (Andrew Stegmaier) is an employee of Microsoft.
 
-## Change History
+## Usage
 
-* Oct 27, 2017: Initial version.
+After the add-in is installed (see instructions below), it adds a `COINBASE.PRICE()` function to Excel. The syntax is:
+```
+=COINBASE.PRICE(<Base>, <Currency>)
+```
+Where `<Base>` is the three-letter currency code that you want to check the price of, and `<Currency>` is the code for the currency you want that price expressed in. For example, to fetch the current price of Bitcoin in US Dollars, you would write:
+```
+=COINBASE.PRICE("BTC","USD")
+```
+You can get see the list of currency codes that Coinbase currently supports by checking [this REST endpoint](https://api.coinbase.com/v2/currencies).
 
-## Prerequisites
+# Installation
 
-* Install Office 2016 for Windows and join the [Office Insider](https://products.office.com/en-us/office-insider) program. You must have Office build number 8711 or later.
-
-## To use the project
-
-Follow these instructions to use this custom function sample add-in:
-
-1. Publish the code files (HTML, JavaScript) in the same folder on a website.
-2. Replace `https://<INSERT-URL-HERE>` in the manifest file (there should be 3 occurrences) with the URL of your website. 
-3. Sideload the manifest using the instructions found at <https://aka.ms/sideload-addins>.
-4. Test your custom function by entering `=Contoso.ADD42(1,2)` in a cell.
-5. If you make changes to the sample add-in, copy the updated files to your website, and then close and reopen Excel. If your functions are not available in Excel, re-insert the add-in using **Insert** > **My Add-ins**.
-6. Follow @OfficeDev on Twitter for updates and send feedback to <excelcustomfunctions@microsoft.com>.
-
-## Questions and comments
-
-We'd love to get your feedback about this sample. You can send your feedback to us in the *Issues* section of this repository.
-
-Questions about Microsoft Office 365 development in general should be posted to [Stack Overflow](http://stackoverflow.com/questions/tagged/office-js+API). If your question is about the Office JavaScript APIs, make sure that your questions are tagged with [office-js] and [API].
-
-## Additional resources
-
-* [Office add-in documentation](https://msdn.microsoft.com/en-us/library/office/jj220060.aspx)
-* [Office Dev Center](http://dev.office.com/)
-* More Office Add-in samples at [OfficeDev on Github](https://github.com/officedev)
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-## Copyright
-Copyright (c) 2017 Microsoft Corporation. All rights reserved.
+1. Currently (December 2017), Excel JavaScript Custom Functions are only available for preview in the latest builds of Excel for Windows. You need to join th [Office Insider](https://products.office.com/en-us/office-insider) program, and install Office build number 8711 or later.
+2. Download [manifest.xml](https://github.com/astegmaier/coinbase-excel-functions/blob/master/manifest.xml) from this repo.
+3. Sideload the manifest using the instructions found at <https://aka.ms/sideload-addins>. The JavaScript and HTML files found in the wwwroot folder of this repo are already hosted at <https://excel-coinbase-prices.azurewebsites.net/>.
