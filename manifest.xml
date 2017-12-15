@@ -3,7 +3,7 @@
   <Id>a124c024-2ae8-4d1a-bb00-7ff68c6fb738</Id>
   <!-- Generate a new guid for your Id element -->
   <Version>1.0.0.0</Version>
-  <ProviderName>Contoso</ProviderName>
+  <ProviderName>Andrew Stegmaier</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Coinbase Prices" />
   <Description DefaultValue="An Excel function to fetch current cryptocurrency prices from Coinbase." />
