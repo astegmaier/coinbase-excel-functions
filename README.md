@@ -1,10 +1,10 @@
 # Coinbase Excel Functions
 
-This is an [Excel JavaScript Custom Function](https://dev.office.com/docs/add-ins/excel/custom-functions-overview) that will pull the latest crypto currency prices from Coinbase. It was modeled after the examples on the [Excel Custom Functions Starter Repo](https://github.com/OfficeDev/Excel-Custom-Functions)
+This is an [Excel JavaScript Custom Function](https://dev.office.com/docs/add-ins/excel/custom-functions-overview) that will pull the latest crypto currency prices from Coinbase. It was modeled after the examples on the [Excel Custom Functions Starter Repo](https://github.com/OfficeDev/Excel-Custom-Functions).
 
 Note: this add-in uses a publicly accessible REST API from Coinbase, but the add-in itself is not affiliated with Coinbase in any way. The author (Andrew Stegmaier) is an employee of Microsoft.
 
-## Usage
+# Usage
 
 After the add-in is installed (see instructions below), it adds a `COINBASE.PRICE()` function to Excel. The syntax is:
 ```
