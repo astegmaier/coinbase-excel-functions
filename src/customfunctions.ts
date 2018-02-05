@@ -60,7 +60,6 @@ function request(url: string): OfficeExtension.Promise<any> {
         reject('timeout');
       }
       xhr.open('get', url, true);
-      xhr.setRequestHeader('CB-VERSION', '2017-08-07');
       xhr.send();
     })
   }
@@ -116,7 +115,7 @@ function getSupportedProducts(): OfficeExtension.Promise<GDAXProductsList> {
         if (supportedGDAXProductsCache) {
             resolve(supportedGDAXProductsCache);
         } else {
-            request('https://api.gdax.com/products/')
+            request('https://api.gdax.com/products')
                 .then(rawResponse => {
                     let parsedResponse: GDAXProduct[] = JSON.parse(rawResponse);
                     supportedGDAXProductsCache = {};
@@ -124,7 +123,7 @@ function getSupportedProducts(): OfficeExtension.Promise<GDAXProductsList> {
                         supportedGDAXProductsCache[value.id] = value;
                     });
                     console.log('Got this list of supported GDAX products: ', supportedGDAXProductsCache);
-                    return supportedGDAXProductsCache;
+                    resolve(supportedGDAXProductsCache);
                 })
                 .catch(() => {
                     reject('Could not get the list of supported currencies from GDAX!');
@@ -139,7 +138,7 @@ function getGDAXPrice(base: string, currency: string) {
             .then((supportedProducts) => {
                 let productName = base + '-' + currency;
                 if (productName in supportedProducts) {
-                    request(`https://api.gdax.com/products/${productName}/book`)
+                    request(`https://api.gdax.com/products/${productName}/book/`)
                         .then(rawResponse => {
                             let parsedResponse: GDAXBook = JSON.parse(rawResponse);
                             let bidPrice = parseFloat(<string>parsedResponse.bids[0][0]);

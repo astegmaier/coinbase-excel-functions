@@ -79,9 +79,12 @@ async function testGdaxPrices(from: string, to: string) {
     let productName = from + '-' + to;
     if (productName in supportedProducts) {
         try {
-            let rawResponse = await testRequest(`https://api.gdax.com/products/${productName}/book`);
+            let rawResponse = await testRequest(`https://api.gdax.com/products/${productName}/book/`);
             let parsedResponse: GDAXBook = JSON.parse(rawResponse);
-            console.log(parsedResponse);
+            let bidPrice = parseFloat(<string>parsedResponse.bids[0][0]);
+            let askPrice = parseFloat(<string>parsedResponse.asks[0][0]);
+            let midMarketPrice = (bidPrice + askPrice) / 2;
+            console.log(midMarketPrice);
         } catch (e) {
             console.error('Couldnt look up the GDAX product. Error was: ' + e);
         }

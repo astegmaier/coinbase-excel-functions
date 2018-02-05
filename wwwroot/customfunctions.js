@@ -17,7 +17,6 @@ function request(url) {
             reject('timeout');
         };
         xhr.open('get', url, true);
-        xhr.setRequestHeader('CB-VERSION', '2017-08-07');
         xhr.send();
     });
 }
@@ -73,7 +72,7 @@ function getSupportedProducts() {
             resolve(supportedGDAXProductsCache);
         }
         else {
-            request('https://api.gdax.com/products/')
+            request('https://api.gdax.com/products')
                 .then(function (rawResponse) {
                 var parsedResponse = JSON.parse(rawResponse);
                 supportedGDAXProductsCache = {};
@@ -81,7 +80,7 @@ function getSupportedProducts() {
                     supportedGDAXProductsCache[value.id] = value;
                 });
                 console.log('Got this list of supported GDAX products: ', supportedGDAXProductsCache);
-                return supportedGDAXProductsCache;
+                resolve(supportedGDAXProductsCache);
             })
                 .catch(function () {
                 reject('Could not get the list of supported currencies from GDAX!');
@@ -95,7 +94,7 @@ function getGDAXPrice(base, currency) {
             .then(function (supportedProducts) {
             var productName = base + '-' + currency;
             if (productName in supportedProducts) {
-                request("https://api.gdax.com/products/" + productName + "/book")
+                request("https://api.gdax.com/products/" + productName + "/book/")
                     .then(function (rawResponse) {
                     var parsedResponse = JSON.parse(rawResponse);
                     var bidPrice = parseFloat(parsedResponse.bids[0][0]);

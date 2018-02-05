@@ -146,7 +146,7 @@ function testGetSupportedGDAXProducts() {
 }
 function testGdaxPrices(from, to) {
     return __awaiter(this, void 0, void 0, function () {
-        var supportedProducts, productName, rawResponse, parsedResponse, e_2;
+        var supportedProducts, productName, rawResponse, parsedResponse, bidPrice, askPrice, midMarketPrice, e_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, testGetSupportedGDAXProducts()];
@@ -157,11 +157,14 @@ function testGdaxPrices(from, to) {
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, , 5]);
-                    return [4 /*yield*/, testRequest("https://api.gdax.com/products/" + productName + "/book")];
+                    return [4 /*yield*/, testRequest("https://api.gdax.com/products/" + productName + "/book/")];
                 case 3:
                     rawResponse = _a.sent();
                     parsedResponse = JSON.parse(rawResponse);
-                    console.log(parsedResponse);
+                    bidPrice = parseFloat(parsedResponse.bids[0][0]);
+                    askPrice = parseFloat(parsedResponse.asks[0][0]);
+                    midMarketPrice = (bidPrice + askPrice) / 2;
+                    console.log(midMarketPrice);
                     return [3 /*break*/, 5];
                 case 4:
                     e_2 = _a.sent();
