@@ -1,4 +1,5 @@
 var supportedCurrenciesCache;
+var supportedGDAXProductsCache;
 function request(url) {
     return new OfficeExtension.Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -20,6 +21,7 @@ function request(url) {
         xhr.send();
     });
 }
+//Gets supported currencies from Coinbase.
 function getSupportedCurrencies() {
     return new OfficeExtension.Promise(function (resolve, reject) {
         if (supportedCurrenciesCache) {
@@ -64,9 +66,56 @@ function getPrice(base, currency) {
             .catch(function () { return setError('#VALUE'); }); //setError("Couldn't get list of supported currencies"));
     });
 }
+//Gets supported products from GDAX
+function getSupportedProducts() {
+    return new OfficeExtension.Promise(function (resolve, reject) {
+        if (supportedGDAXProductsCache) {
+            resolve(supportedGDAXProductsCache);
+        }
+        else {
+            request('https://api.gdax.com/products/')
+                .then(function (rawResponse) {
+                var parsedResponse = JSON.parse(rawResponse);
+                supportedGDAXProductsCache = {};
+                parsedResponse.forEach(function (value) {
+                    supportedGDAXProductsCache[value.id] = value;
+                });
+                console.log('Got this list of supported GDAX products: ', supportedGDAXProductsCache);
+                return supportedGDAXProductsCache;
+            })
+                .catch(function () {
+                reject('Could not get the list of supported currencies from GDAX!');
+            });
+        }
+    });
+}
+function getGDAXPrice(base, currency) {
+    return new OfficeExtension.Promise(function (setResult, setError) {
+        getSupportedProducts()
+            .then(function (supportedProducts) {
+            var productName = base + '-' + currency;
+            if (productName in supportedProducts) {
+                request("https://api.gdax.com/products/" + productName + "/book")
+                    .then(function (rawResponse) {
+                    var parsedResponse = JSON.parse(rawResponse);
+                    var bidPrice = parseFloat(parsedResponse.bids[0][0]);
+                    var askPrice = parseFloat(parsedResponse.asks[0][0]);
+                    var midMarketPrice = (bidPrice + askPrice) / 2;
+                    setResult(midMarketPrice);
+                })
+                    .catch(function () { return setError('#VALUE'); }); //setError("Find a book for that product"));
+            }
+            else {
+                setError('#VALUE'); //setError("Product not supported");
+            }
+        })
+            .catch(function () { return setError('#VALUE'); }); //setError("Couldn't get list of supported products"));
+    });
+}
 Office.initialize = function (reason) {
     Excel.Script.CustomFunctions = {};
     Excel.Script.CustomFunctions["COINBASE"] = {};
+    Excel.Script.CustomFunctions["GDAX"] = {};
     Excel.Script.CustomFunctions["COINBASE"]["PRICE"] = {
         call: getPrice,
         description: "Gets the current bitcoin price from Coinbase",
@@ -77,13 +126,36 @@ Office.initialize = function (reason) {
         parameters: [
             {
                 name: "Base",
-                description: "The code of the currency whose price you want to check. (default: BTC)",
+                description: "The code of the currency whose price you want to check. (Example: 'BTC')",
                 valueType: Excel.CustomFunctionValueType.string,
                 valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             },
             {
                 name: "Currency",
-                description: "The code of the currency in which you want to display the price. (default: USD)",
+                description: "The code of the currency in which you want to display the price. (Example: 'USD')",
+                valueType: Excel.CustomFunctionValueType.string,
+                valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
+            }
+        ],
+        options: { batch: false, stream: false }
+    };
+    Excel.Script.CustomFunctions["GDAX"]["PRICE"] = {
+        call: getGDAXPrice,
+        description: "Gets the current bitcoin mid-market price from GDAX",
+        result: {
+            resultType: Excel.CustomFunctionValueType.number,
+            resultDimensionality: Excel.CustomFunctionDimensionality.scalar
+        },
+        parameters: [
+            {
+                name: "Base",
+                description: "The code of the currency whose price you want to check. (Example: 'BTC')",
+                valueType: Excel.CustomFunctionValueType.string,
+                valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
+            },
+            {
+                name: "Currency",
+                description: "The code of the currency in which you want to display the price. (Example: 'USD')",
                 valueType: Excel.CustomFunctionValueType.string,
                 valueDimensionality: Excel.CustomFunctionDimensionality.scalar,
             }

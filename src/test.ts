@@ -1,4 +1,5 @@
 var testSupportedCurrenciesCache: CurrencyList;
+var testSupportedGDAXProductsCache: GDAXProductsList;
 
 function testRequest(url: string): Promise<any> {
     return new Promise(function(resolve, reject) {
@@ -16,7 +17,6 @@ function testRequest(url: string): Promise<any> {
         reject('timeout');
       }
       xhr.open('get', url, true);
-      xhr.setRequestHeader('CB-VERSION', '2017-08-07');
       xhr.send();
     })
   }
@@ -51,6 +51,41 @@ async function testConvertCurrency(from: string, to: string) {
             console.error('Couldnt convert the currencies. Error was: ' + e);
         }
     } else {
-        console.error('currency not supported!');
+        console.error('Currency not supported!');
+    }
+}
+
+async function testGetSupportedGDAXProducts(): Promise<GDAXProductsList> {
+    if (testSupportedGDAXProductsCache) {
+        return testSupportedGDAXProductsCache;
+    } else {
+        let rawResponse = await testRequest('https://api.gdax.com/products/');
+        try {
+            let parsedResponse: GDAXProduct[] = JSON.parse(rawResponse);
+            testSupportedGDAXProductsCache = {};
+            parsedResponse.forEach((value) => {
+                testSupportedGDAXProductsCache[value.id] = value;
+            });
+            console.log('Got this list of supported GDAX products: ', testSupportedGDAXProductsCache);
+            return testSupportedGDAXProductsCache;
+        } catch (e) {
+            console.error('Could not get the list of supported currencies from GDAX! Error was: ' + e);
+        }
+    }
+}
+
+async function testGdaxPrices(from: string, to: string) {
+    let supportedProducts = await testGetSupportedGDAXProducts();
+    let productName = from + '-' + to;
+    if (productName in supportedProducts) {
+        try {
+            let rawResponse = await testRequest(`https://api.gdax.com/products/${productName}/book`);
+            let parsedResponse: GDAXBook = JSON.parse(rawResponse);
+            console.log(parsedResponse);
+        } catch (e) {
+            console.error('Couldnt look up the GDAX product. Error was: ' + e);
+        }
+    } else {
+        console.error('Product not supported!');
     }
 }

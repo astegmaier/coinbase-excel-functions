@@ -34,6 +34,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var testSupportedCurrenciesCache;
+var testSupportedGDAXProductsCache;
 function testRequest(url) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -51,7 +52,6 @@ function testRequest(url) {
             reject('timeout');
         };
         xhr.open('get', url, true);
-        xhr.setRequestHeader('CB-VERSION', '2017-08-07');
         xhr.send();
     });
 }
@@ -108,7 +108,68 @@ function testConvertCurrency(from, to) {
                     return [3 /*break*/, 5];
                 case 5: return [3 /*break*/, 7];
                 case 6:
-                    console.error('currency not supported!');
+                    console.error('Currency not supported!');
+                    _a.label = 7;
+                case 7: return [2 /*return*/];
+            }
+        });
+    });
+}
+function testGetSupportedGDAXProducts() {
+    return __awaiter(this, void 0, void 0, function () {
+        var rawResponse, parsedResponse;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!testSupportedGDAXProductsCache) return [3 /*break*/, 1];
+                    return [2 /*return*/, testSupportedGDAXProductsCache];
+                case 1: return [4 /*yield*/, testRequest('https://api.gdax.com/products/')];
+                case 2:
+                    rawResponse = _a.sent();
+                    try {
+                        parsedResponse = JSON.parse(rawResponse);
+                        testSupportedGDAXProductsCache = {};
+                        parsedResponse.forEach(function (value) {
+                            testSupportedGDAXProductsCache[value.id] = value;
+                        });
+                        console.log('Got this list of supported GDAX products: ', testSupportedGDAXProductsCache);
+                        return [2 /*return*/, testSupportedGDAXProductsCache];
+                    }
+                    catch (e) {
+                        console.error('Could not get the list of supported currencies from GDAX! Error was: ' + e);
+                    }
+                    _a.label = 3;
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+function testGdaxPrices(from, to) {
+    return __awaiter(this, void 0, void 0, function () {
+        var supportedProducts, productName, rawResponse, parsedResponse, e_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, testGetSupportedGDAXProducts()];
+                case 1:
+                    supportedProducts = _a.sent();
+                    productName = from + '-' + to;
+                    if (!(productName in supportedProducts)) return [3 /*break*/, 6];
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, , 5]);
+                    return [4 /*yield*/, testRequest("https://api.gdax.com/products/" + productName + "/book")];
+                case 3:
+                    rawResponse = _a.sent();
+                    parsedResponse = JSON.parse(rawResponse);
+                    console.log(parsedResponse);
+                    return [3 /*break*/, 5];
+                case 4:
+                    e_2 = _a.sent();
+                    console.error('Couldnt look up the GDAX product. Error was: ' + e_2);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    console.error('Product not supported!');
                     _a.label = 7;
                 case 7: return [2 /*return*/];
             }
